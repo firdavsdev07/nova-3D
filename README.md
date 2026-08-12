@@ -1,16 +1,83 @@
-# React + Vite
+# Nova — 3D Vehicle Experience
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interaktiv 3D avtomobil taqdimoti. Scroll orqali boshqariladigan kamera, qism-qism ajratish animatsiyalari va to'liq ovozli muhit.
 
-Currently, two official plugins are available:
+## Texnologiyalar
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Kutubxona | Versiya | Maqsad |
+|---|---|---|
+| React | 19 | UI va holat boshqaruvi |
+| Vite | 8 | Yig'ish va dev server |
+| Three.js | 0.185 | 3D render va sahna |
+| GSAP + ScrollTrigger | 3.15 | Scroll animatsiyalari |
+| Lucide React | 1.31 | Ikonkalar |
 
-## React Compiler
+## Loyiha tuzilishi
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── animations/
+│   ├── cameraAnimations.js   # Kamera beats va focus light beats
+│   ├── scrollTimeline.js     # Master scroll timeline (GSAP)
+│   └── uiAnimations.js       # Intro animatsiyasi, counter, scroll-to
+├── audio/
+│   └── AudioManager.js       # Fon tovushi va mexanik qatlam
+├── components/
+│   ├── Annotations.jsx        # 3D dan proeksiya qilingan belgilar
+│   ├── CTA.jsx                # Yakuniy chaqiruv bo'limi
+│   ├── Engineering.jsx        # Foundation, Performance, Architecture
+│   ├── Hero.jsx               # Bosh sahifa
+│   ├── Interior.jsx           # Kabina bo'limi
+│   ├── Loader.jsx             # Yuklanish ekrani
+│   ├── Navigation.jsx         # Navigatsiya va telemetriya
+│   ├── Panel.jsx              # Umumiy bo'lim wrapper
+│   ├── SoundControl.jsx       # Ovoz tugmasi
+│   └── Technology.jsx         # Powertrain va Technology bo'limlari
+├── styles/
+│   ├── global.css             # Palette, tipografiya, sahna
+│   ├── loader.css             # Yuklanish ekrani stillari
+│   ├── navigation.css         # Masthead, nav, telemetriya
+│   └── sections.css           # Panel, stats, annotations
+├── three/
+│   ├── Camera.js              # CameraRig: chase + drift + parallax
+│   ├── Lighting.js            # PMREM studio, yorug'lik, soya
+│   ├── Materials.js           # Material overridelar (paint, glass, leather…)
+│   ├── Scene.js               # Experience: renderer, loop, annotations
+│   ├── Vehicle.js             # GLB yuklash va explode mexanikasi
+│   └── VehicleParts.js        # EXPLODE qoidalar va ANNOTATIONS
+├── App.jsx                    # Asosiy komponent
+└── main.jsx                   # React kirish nuqtasi
+```
 
-## Expanding the Oxlint configuration
+## O'rnatish va ishga tushirish
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+# Bog'liqliklarni o'rnatish
+pnpm install
+
+# Dev server (http://localhost:5173)
+pnpm dev
+
+# Production build
+pnpm build
+
+# Build natijasini ko'rish
+pnpm preview
+```
+
+## Scroll xaritasi
+
+| Progress | Bo'lim | Sahna |
+|---|---|---|
+| `0.00 – 0.12` | Hero | Old uch chorak, uzun linza |
+| `0.17 – 0.26` | Foundation | Old g'ildirak hub darajasida |
+| `0.29 – 0.38` | Performance | Yon ko'rinish, raqamlar |
+| `0.41 – 0.50` | Architecture | To'liq ajratilgan holat |
+| `0.53 – 0.62` | Interior | Kabinaga kirish |
+| `0.64 – 0.73` | Powertrain | Motor bloki oldinga chiqadi |
+| `0.75 – 0.86` | Technology | Orqa aerodinamika |
+| `0.91 → ∞` | CTA | Mashina qayta yig'iladi |
+
+## Litsenziya
+
+Manba 3D modeli uchun atribut ma'lumotlarini `ATTRIBUTION.md` faylidan ko'ring.
