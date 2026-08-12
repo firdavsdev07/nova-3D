@@ -26,15 +26,16 @@
 export const BEATS = [
   {
     // Hero. Long lens, front three-quarter from the left flank.
+    // py lowered slightly to reduce the vertically-stretched look.
     at: 0,
     ease: 'power2.inOut',
-    cam: { px: 5.0, py: 1.35, pz: 5.6, lx: 0, ly: 0.62, lz: 0.15, fov: 32, drift: 1, parallax: 1 },
+    cam: { px: 4.8, py: 1.10, pz: 5.4, lx: 0, ly: 0.58, lz: 0.15, fov: 30, drift: 1, parallax: 1 },
   },
   {
     // The approach: lower and nearer, the nose starting to dominate.
     at: 0.1,
     ease: 'power2.out',
-    cam: { px: 3.3, py: 0.88, pz: 4.3, lx: 0, ly: 0.58, lz: 0.7, fov: 30, drift: 0.35, parallax: 0.8 },
+    cam: { px: 3.2, py: 0.78, pz: 4.1, lx: 0, ly: 0.54, lz: 0.6, fov: 28, drift: 0.35, parallax: 0.8 },
   },
   {
     // Front-left wheel at hub height, as the rim slides off the brake.
@@ -55,10 +56,12 @@ export const BEATS = [
     cam: { px: 5.2, py: 2.9, pz: 5.2, lx: 0, ly: 0.95, lz: 0, fov: 33, drift: 0.3, parallax: 0.7 },
   },
   {
-    // Down into the cabin over the left shoulder, roof already gone.
+    // Down into the cabin from the left shoulder, roof already gone.
+    // Lower py + adjusted lz so the camera looks clearly at the seats
+    // without clipping or a distorted perspective.
     at: 0.57,
     ease: 'power2.inOut',
-    cam: { px: 1.9, py: 1.7, pz: 2.35, lx: 0.05, ly: 0.78, lz: 0.05, fov: 36, drift: 0.05, parallax: 0.35 },
+    cam: { px: 1.6, py: 1.28, pz: 1.9, lx: -0.1, ly: 0.68, lz: -0.2, fov: 38, drift: 0.05, parallax: 0.3 },
   },
   {
     // Engine bay, framed on the powertrain once it has drawn forward.
@@ -81,9 +84,10 @@ export const BEATS = [
   },
   {
     // Inside, between the seats, travelling aft.
+    // Raise py slightly and narrow fov to avoid the ceiling clipping into view.
     at: 0.9,
     ease: 'none',
-    cam: { px: 0, py: 0.92, pz: 0.9, lx: 0, ly: 0.85, lz: -2.6, fov: 46, drift: 0, parallax: 0.15 },
+    cam: { px: 0, py: 0.86, pz: 0.7, lx: 0, ly: 0.72, lz: -2.2, fov: 42, drift: 0, parallax: 0.1 },
   },
   {
     // Out through the tail, turning back as the car reassembles.
@@ -115,7 +119,7 @@ export const BEATS = [
 export const FOCUS_BEATS = [
   { at: 0.19, to: 0.29, pos: [0.95, 0.55, 1.25], intensity: 2.6 }, // front brake
   { at: 0.44, to: 0.53, pos: [0, 0.5, 0], intensity: 1.6 }, // chassis, under the assembly
-  { at: 0.55, to: 0.64, pos: [0, 0.95, 0.3], intensity: 2.2 }, // cabin
+  { at: 0.55, to: 0.64, pos: [0, 1.15, 0.3], intensity: 3.2 }, // cabin — higher for seat clarity
   { at: 0.65, to: 0.74, pos: [0, 1.3, 2.9], intensity: 3.0 }, // powertrain, drawn forward
   { at: 0.76, to: 0.85, pos: [0, 1.05, -2.6], intensity: 2.4 }, // rear clip, withdrawn
 ];

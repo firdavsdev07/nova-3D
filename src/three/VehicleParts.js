@@ -136,7 +136,7 @@ export const ANNOTATIONS = [
     id: 'cabin',
     range: [0.55, 0.64],
     anchor: 'InteriorSteeringCylinder',
-    offset: [0, 0.3, 0],
+    offset: [0, 0.22, 0.1],
     label: 'Cabin',
     spec: [
       ['Driver interface', 'Analogue'],
@@ -147,7 +147,7 @@ export const ANNOTATIONS = [
     id: 'seats',
     range: [0.565, 0.64],
     anchor: 'InteriorSeatsColor1',
-    offset: [0.3, 0.28, -0.2],
+    offset: [0.22, 0.18, 0],
     label: 'Occupant cell',
     spec: [['Weight', '8.2 KG']],
   },
