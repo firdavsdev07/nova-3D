@@ -1,0 +1,92 @@
+/* ------------------------------------------------------------------
+   Loading
+
+   The scene renders behind this from the first frame; the loader is a
+   veil over a running experience, not a placeholder in front of an
+   empty one. So when it lifts, the vehicle is already lit and moving —
+   there is no second wait.
+   ------------------------------------------------------------------ */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: clamp(2.5rem, 6vh, 4rem);
+  background: var(--void);
+  padding: var(--gutter);
+}
+
+.loader__mark {
+  font-family: 'Archivo', sans-serif;
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 200;
+  font-stretch: 118%;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  text-transform: uppercase;
+  color: var(--bone);
+  line-height: 1;
+  animation: mark-in 1.6s var(--ease) both;
+}
+
+@keyframes mark-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.85em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.5em;
+  }
+}
+
+.loader__readout {
+  display: grid;
+  gap: 0.875rem;
+  width: min(22rem, 62vw);
+}
+
+.loader__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.loader__value {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--bone-70);
+  font-variant-numeric: tabular-nums;
+}
+
+.loader__track {
+  position: relative;
+  height: 1px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.loader__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  /* Eased so a burst of bytes does not snap the bar forward. */
+  transition: transform 0.45s var(--ease);
+}
+
+.loader__error {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--bone-70);
+  text-align: center;
+  max-width: 26rem;
+  line-height: 1.7;
+}

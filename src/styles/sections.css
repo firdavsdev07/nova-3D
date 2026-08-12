@@ -1,0 +1,468 @@
+/* ------------------------------------------------------------------
+   Sections
+
+   Every section is a fixed overlay on the same 3D scene rather than a
+   block in a document. The page never "moves" — copy is exchanged over
+   a continuous shot, which is what keeps the whole thing reading as one
+   take instead of nine stacked pages.
+
+   Panels are inert to the pointer. Only the controls inside them opt
+   back in, so a full-screen overlay can never eat a scroll.
+   ------------------------------------------------------------------ */
+
+.panel {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  padding: clamp(6rem, 12vh, 9rem) var(--gutter) clamp(4.5rem, 9vh, 7rem);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.panel a,
+.panel button {
+  pointer-events: auto;
+}
+
+.panel__block {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  justify-items: start;
+  max-width: min(36rem, 50vw);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* Composition variants — where the copy sits against the vehicle. */
+
+.panel--hero {
+  align-content: center;
+}
+
+.panel--left {
+  align-content: center;
+  justify-content: start;
+}
+
+.panel--right {
+  align-content: center;
+  justify-content: end;
+}
+
+.panel--right .panel__block {
+  justify-items: start;
+}
+
+.panel--foot {
+  align-content: end;
+  justify-content: start;
+}
+
+/* Header top-left, figures along the base. */
+.panel--stats {
+  align-content: space-between;
+  justify-items: start;
+}
+
+/* ----------------------------------------------------------- eyebrow */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.eyebrow__rule {
+  width: clamp(1.5rem, 3vw, 3rem);
+  height: 1px;
+  background: var(--accent-dim);
+}
+
+/* -------------------------------------------------------------- hero */
+
+.hero__headline {
+  margin: 0;
+}
+
+/* Each line rides in a mask so it can wipe up from its own baseline. */
+.hero__mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em;
+}
+
+.hero__line {
+  display: block;
+  will-change: transform;
+}
+
+.hero__sub {
+  max-width: 30ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+  margin-top: clamp(0.5rem, 1.5vw, 1.25rem);
+}
+
+/* ------------------------------------------------------------ actions */
+
+.action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-45);
+  transition: color 0.5s var(--ease);
+}
+
+.action::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+  transform: scaleX(1);
+  transform-origin: left;
+  transition:
+    transform 0.6s var(--ease),
+    opacity 0.5s var(--ease);
+}
+
+.action:hover,
+.action:focus-visible {
+  color: var(--bone);
+  outline: none;
+}
+
+.action:hover::after,
+.action:focus-visible::after {
+  opacity: 1;
+}
+
+.action svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 1.6;
+  transition: transform 0.55s var(--ease);
+}
+
+.action:hover svg,
+.action:focus-visible svg {
+  transform: translateX(4px);
+}
+
+.action--primary {
+  color: var(--bone);
+}
+
+.action--primary::after {
+  background: var(--accent);
+  opacity: 0.7;
+}
+
+/* ------------------------------------------------------------- stats */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 4rem);
+  width: 100%;
+  border-top: 1px solid var(--hairline);
+  padding-top: clamp(1rem, 2vw, 1.75rem);
+}
+
+.stat {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.stat__figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 200;
+  font-stretch: 108%;
+  line-height: 1;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.25rem, 4.6vw, 4rem);
+}
+
+.stat__unit {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--bone-45);
+  font-stretch: 100%;
+}
+
+/* --------------------------------------------------------- spec list */
+
+.spec {
+  display: grid;
+  width: 100%;
+  max-width: 24rem;
+  margin: 0;
+}
+
+.spec__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.spec__key {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-45);
+  margin: 0;
+}
+
+.spec__value {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--bone);
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------- scroll cue */
+
+.cue {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(1.25rem, 2.4vw, 2rem);
+  z-index: 30;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease);
+}
+
+.cue__track {
+  position: relative;
+  width: 1px;
+  height: 2.75rem;
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.cue__dot {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 0.875rem;
+  background: var(--accent);
+  animation: cue-fall 2.6s var(--ease-io) infinite;
+}
+
+@keyframes cue-fall {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  35%,
+  65% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(2.75rem);
+    opacity: 0;
+  }
+}
+
+/* -------------------------------------------------------- annotations
+
+   Projected from 3D each frame: the wrapper is moved to the part's
+   screen position, and everything inside is laid out relative to that
+   pin. Small, editorial — a leader line and two figures, never a card.
+   ------------------------------------------------------------------ */
+
+.annotations {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.annotation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+  transition: opacity 0.2s linear;
+}
+
+.annotation__pin {
+  position: absolute;
+  top: -2.5px;
+  left: -2.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.annotation__pin::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 1px solid var(--accent-dim);
+  border-radius: 50%;
+}
+
+.annotation__leader {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 46px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-dim), var(--hairline));
+}
+
+.annotation__body {
+  position: absolute;
+  left: 58px;
+  top: 0;
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: 13rem;
+}
+
+.annotation__title {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.375rem;
+  white-space: nowrap;
+}
+
+.annotation__spec {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0;
+}
+
+.annotation__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.annotation__row dt {
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  color: var(--bone-45);
+  white-space: nowrap;
+}
+
+.annotation__row dd {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------- CTA */
+
+.colophon {
+  display: grid;
+  gap: 0.375rem;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  color: var(--bone-28);
+  line-height: 1.7;
+  max-width: 34rem;
+}
+
+.colophon a {
+  color: var(--bone-45);
+  border-bottom: 1px solid var(--hairline);
+  transition: color 0.4s var(--ease);
+  pointer-events: auto;
+}
+
+.colophon a:hover {
+  color: var(--bone);
+}
+
+/* ------------------------------------------------------------ mobile */
+
+@media (max-width: 860px) {
+  .panel {
+    padding: clamp(5rem, 14vh, 7rem) var(--gutter) clamp(5.5rem, 12vh, 8rem);
+  }
+
+  .panel__block {
+    max-width: 28rem;
+  }
+
+  .panel--right {
+    justify-content: start;
+  }
+
+  /* Copy sits at the base on small screens so the vehicle keeps the
+     upper two-thirds of the frame to itself. */
+  .panel--left,
+  .panel--right {
+    align-content: end;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1rem;
+  }
+
+  .annotation__body {
+    left: 40px;
+    max-width: 9rem;
+  }
+
+  .annotation__leader {
+    width: 30px;
+  }
+
+  .annotation__row dt {
+    display: none; /* keep the figure, drop the caption */
+  }
+}
+
+@media (max-width: 520px) {
+  .actions {
+    gap: 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

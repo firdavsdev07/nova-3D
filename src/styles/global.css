@@ -1,0 +1,251 @@
+/* ------------------------------------------------------------------
+   NOVA — foundations
+   Palette, typography, canvas stage and the atmospheric overlays.
+   ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('/fonts/archivo-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Surfaces — near-black through graphite */
+  --void: #08090a;
+  --graphite: #101216;
+  --steel: #191c22;
+
+  /* Type — warm off-white, stepped down by presence rather than size */
+  --bone: #ece8e2;
+  --bone-70: rgba(236, 232, 226, 0.7);
+  --bone-45: rgba(236, 232, 226, 0.45);
+  --bone-28: rgba(236, 232, 226, 0.28);
+
+  /* One accent: muted champagne bronze */
+  --accent: #bc9a6a;
+  --accent-dim: rgba(188, 154, 106, 0.5);
+
+  --hairline: rgba(236, 232, 226, 0.11);
+  --hairline-soft: rgba(236, 232, 226, 0.06);
+
+  /* Motion — a single vocabulary, used everywhere */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur: 0.7s;
+
+  --gutter: clamp(1.5rem, 4vw, 4.5rem);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  /* The 3D stage is the scroll driver; never bounce past it. */
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--bone);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--void);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------- Type */
+
+.display {
+  font-family: 'Archivo', 'Inter', sans-serif;
+  font-weight: 300;
+  font-stretch: 112%;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  margin: 0;
+  /* Optical sizes: headlines breathe, they never wrap tightly. */
+  font-size: clamp(2.75rem, 8.4vw, 8.5rem);
+}
+
+.display--sm {
+  font-size: clamp(2rem, 4.6vw, 4.25rem);
+  line-height: 0.92;
+}
+
+/* The technical voice: small, spaced, quiet. Used for every label. */
+.label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bone-45);
+  margin: 0;
+}
+
+.label--accent {
+  color: var(--accent);
+}
+
+.body-text {
+  font-size: clamp(0.8125rem, 1vw, 0.9375rem);
+  line-height: 1.65;
+  color: var(--bone-70);
+  max-width: 34ch;
+  margin: 0;
+  font-weight: 300;
+}
+
+/* An index number, set beside a label, for the technical register. */
+.ordinal {
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  color: var(--bone-28);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- Stage */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  /* The canvas never intercepts scroll or pointer events. */
+  pointer-events: none;
+}
+
+.stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The scroll driver: an empty column of height that ScrollTrigger reads. */
+.scroll-driver {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------- Atmosphere overlays
+
+   Vignette and grain are done in CSS rather than as post-processing
+   passes — identical result, zero cost to the render loop.            */
+
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.atmosphere::before {
+  /* Vignette: pulls the eye to the vehicle and hides the horizon seam. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 85% at 50% 45%, transparent 42%, rgba(8, 9, 10, 0.55) 82%, rgba(8, 9, 10, 0.9) 100%);
+}
+
+.atmosphere::after {
+  /* Grain: a single tiled SVG turbulence, animated by steps not tweens. */
+  content: '';
+  position: absolute;
+  inset: -50%;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 6s steps(6) infinite;
+  will-change: transform;
+}
+
+@keyframes grain {
+  0% { transform: translate3d(0, 0, 0); }
+  16% { transform: translate3d(-3%, 2%, 0); }
+  33% { transform: translate3d(2%, -3%, 0); }
+  50% { transform: translate3d(-2%, -2%, 0); }
+  66% { transform: translate3d(3%, 1%, 0); }
+  83% { transform: translate3d(-1%, 3%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* --------------------------------------------------------- Utilities */
+
+.rule {
+  height: 1px;
+  background: var(--hairline);
+  border: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere::after {
+    animation: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
