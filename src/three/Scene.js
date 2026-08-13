@@ -22,19 +22,32 @@ function fadeWindow(progress, [from, to], edge = 0.022) {
   return Math.max(0, Math.min(1, rise, fall));
 }
 
+/**
+ * The quality tier, recomputed whenever the viewport changes — a desktop
+ * window dragged to phone width has to actually cross over, not just
+ * rescale. Everything here is live except `antialias`, which is fixed at
+ * context creation and so is read once.
+ */
 function detectQuality() {
   const coarse = window.matchMedia('(pointer: coarse)').matches;
   const narrow = window.innerWidth < 820;
   const mobile = coarse || narrow;
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   return {
     mobile,
-    // Beyond 2x the cost is real and the gain is not visible.
-    pixelRatio: Math.min(window.devicePixelRatio, mobile ? 1.5 : 2),
+    // 1.5 is the knee: past it the cost is quadratic and the gain is not
+    // visible on a phone-density panel.
+    pixelRatio: Math.min(window.devicePixelRatio, mobile ? 1.5 : 1.75),
     shadowMap: mobile ? 1024 : 2048,
     antialias: !mobile,
     // Shorter throws on small screens keep parts inside the frame.
     explodeScale: mobile ? 0.72 : 1,
+    // Idle camera motion is scaled down rather than removed: on a small
+    // screen the same drift covers far more of the frame. A reduced-motion
+    // request does remove it — drift and breathing are exactly the
+    // unrequested movement that setting is about.
+    motionScale: calm ? 0 : mobile ? 0.5 : 1,
   };
 }
 
@@ -61,11 +74,19 @@ export class Experience {
     // PCFSoft is deprecated in current three; softness comes from
     // shadow.radius on the key light instead.
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    // The shadow pass re-draws every caster in the scene. Nothing here
+    // casts a moving shadow unless a part is actually travelling, and
+    // the key light never moves — so the map is refreshed on demand
+    // rather than on every one of the frames where only the camera has
+    // changed, which is most of them.
+    this.renderer.shadowMap.autoUpdate = false;
+    this.renderer.shadowMap.needsUpdate = true;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1;
 
     this.scene = new THREE.Scene();
     this.rig = new CameraRig(window.innerWidth / window.innerHeight);
+    this.rig.setMotionScale(this.quality.motionScale);
     this.lighting = setupLighting(this.scene, this.renderer, { quality: this.quality });
 
     /* ------------------------------------------------------- state
@@ -93,7 +114,7 @@ export class Experience {
       progress: 0,
       /** 0 → 1 across the teardown; read by the audio bed. */
       disassembly: 0,
-      focus: { x: 0, y: 0.6, z: 0, intensity: 0 },
+      focus: { x: 0, y: 0.6, z: 0, intensity: 0, rise: 0 },
       exposure: 1,
     };
 
@@ -123,9 +144,19 @@ export class Experience {
     this.vehicle = new Vehicle({ explodeScale: this.quality.explodeScale });
     await this.vehicle.load(onProgress);
     this.scene.add(this.vehicle.container);
+    this.renderer.shadowMap.needsUpdate = true;
 
     this.ready = true;
     return this.vehicle;
+  }
+
+  /**
+   * How far the assembly is currently floating off the floor, in world
+   * units — the authored `lift` after the small-screen scale. Camera
+   * beats ride this so close framings stay on their subject.
+   */
+  get liftHeight() {
+    return this.state.lift * (this.vehicle?.explodeScale ?? 1);
   }
 
   /** Called by React once the annotation elements exist. */
@@ -156,11 +187,25 @@ export class Experience {
   _resize() {
     const w = window.innerWidth;
     const h = window.innerHeight;
-    // Re-evaluate the tier: a desktop window can be dragged to phone width.
-    this.quality.pixelRatio = Math.min(window.devicePixelRatio, this.quality.mobile ? 1.5 : 2);
-    this.renderer.setPixelRatio(this.quality.pixelRatio);
+
+    const next = detectQuality();
+    const crossed = next.mobile !== this.quality.mobile;
+    // `antialias` is baked into the context and cannot follow the tier.
+    next.antialias = this.quality.antialias;
+    this.quality = next;
+
+    this.renderer.setPixelRatio(next.pixelRatio);
     this.renderer.setSize(w, h, false);
     this.rig.resize(w / h);
+    this.rig.setMotionScale(next.motionScale);
+
+    if (crossed) {
+      // Shadow map size is a texture allocation, so it is only touched on
+      // an actual tier change rather than on every resize event.
+      this.lighting.setShadowResolution(next.shadowMap);
+      this.renderer.shadowMap.needsUpdate = true;
+      if (this.vehicle) this.vehicle.explodeScale = next.explodeScale;
+    }
   }
 
   _frame(now) {
@@ -173,11 +218,19 @@ export class Experience {
     this._last = now;
     const { state } = this;
 
-    this.rig.update(dt);
+    // The vehicle moves first: the rig needs this frame's lift, not the
+    // previous one's, or close beats lag a frame behind the assembly.
+    if (this.vehicle && this.vehicle.update(state)) {
+      this.renderer.shadowMap.needsUpdate = true;
+    }
+    this.rig.update(dt, this.liftHeight);
 
-    if (this.vehicle) this.vehicle.update(state);
-
-    this.lighting.setFocus(state.focus.x, state.focus.y, state.focus.z, state.focus.intensity);
+    this.lighting.setFocus(
+      state.focus.x,
+      state.focus.y + this.liftHeight * state.focus.rise,
+      state.focus.z,
+      state.focus.intensity
+    );
     // The contact shadow belongs to a car on the floor, not to an
     // assembly floating in a void.
     this.lighting.contact.material.opacity = 0.9 * (1 - Math.min(state.lift / 0.4, 1));

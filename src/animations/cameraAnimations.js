@@ -21,6 +21,12 @@
    2. `drift` and `parallax` fall away as the camera closes in. Idle
       motion that reads as luxurious at seven metres reads as a shaky
       hand at one.
+
+   Positions are authored against the vehicle *at rest*. From 0.4 the
+   assembly floats up to `lift`, so every beat also carries `rise`: the
+   fraction of that lift the camera travels with. Close beats use 1 —
+   without it they frame the air the part has left behind. The wide
+   architecture beat uses less, so the rise stays visible as motion.
    ------------------------------------------------------------------ */
 
 export const BEATS = [
@@ -29,83 +35,93 @@ export const BEATS = [
     // py lowered slightly to reduce the vertically-stretched look.
     at: 0,
     ease: 'power2.inOut',
-    cam: { px: 4.8, py: 1.10, pz: 5.4, lx: 0, ly: 0.58, lz: 0.15, fov: 30, drift: 1, parallax: 1 },
+    cam: { px: 4.8, py: 1.10, pz: 5.4, lx: 0, ly: 0.58, lz: 0.15, fov: 30, drift: 1, parallax: 1, rise: 0 },
   },
   {
     // The approach: lower and nearer, the nose starting to dominate.
     at: 0.1,
     ease: 'power2.out',
-    cam: { px: 3.2, py: 0.78, pz: 4.1, lx: 0, ly: 0.54, lz: 0.6, fov: 28, drift: 0.35, parallax: 0.8 },
+    cam: { px: 3.2, py: 0.78, pz: 4.1, lx: 0, ly: 0.54, lz: 0.6, fov: 28, drift: 0.35, parallax: 0.8, rise: 0 },
   },
   {
     // Front-left wheel at hub height, as the rim slides off the brake.
     at: 0.22,
     ease: 'power2.inOut',
-    cam: { px: 2.75, py: 0.62, pz: 2.75, lx: 0.95, ly: 0.52, lz: 1.3, fov: 34, drift: 0.1, parallax: 0.5 },
+    cam: { px: 2.75, py: 0.62, pz: 2.75, lx: 0.95, ly: 0.52, lz: 1.3, fov: 34, drift: 0.1, parallax: 0.5, rise: 0 },
   },
   {
     // Pull to a clean side elevation for the doors and the numbers.
     at: 0.33,
     ease: 'power2.inOut',
-    cam: { px: 6.4, py: 1.0, pz: 0.5, lx: 0, ly: 0.68, lz: 0, fov: 30, drift: 0.15, parallax: 0.7 },
+    cam: { px: 6.4, py: 1.0, pz: 0.5, lx: 0, ly: 0.68, lz: 0, fov: 30, drift: 0.15, parallax: 0.7, rise: 0.2 },
   },
   {
     // Rise for the full exploded state — the assembly needs headroom.
+    // Riding only part of the lift keeps the float readable as motion.
     at: 0.45,
     ease: 'power2.inOut',
-    cam: { px: 5.2, py: 2.9, pz: 5.2, lx: 0, ly: 0.95, lz: 0, fov: 33, drift: 0.3, parallax: 0.7 },
+    cam: { px: 5.6, py: 2.9, pz: 5.6, lx: 0, ly: 0.95, lz: 0, fov: 33, drift: 0.3, parallax: 0.7, rise: 0.55 },
   },
   {
-    // Down into the cabin from the left shoulder, roof already gone.
-    // Lower py + adjusted lz so the camera looks clearly at the seats
-    // without clipping or a distorted perspective.
+    // Down into the open cockpit from the front-left shoulder.
+    //
+    // The only unobstructed line into this cabin. A side elevation is
+    // blocked by the door, which has swung out to x1.6-2.1; a shot from
+    // directly above looks through the roof stack; and anything closer
+    // than ~3m frames a single seat back. So: high, forward of the door,
+    // outside the wheel arch, angled down across both seats.
     at: 0.57,
     ease: 'power2.inOut',
-    cam: { px: 1.6, py: 1.28, pz: 1.9, lx: -0.1, ly: 0.68, lz: -0.2, fov: 38, drift: 0.05, parallax: 0.3 },
+    cam: { px: 2.9, py: 2.40, pz: 2.10, lx: -0.30, ly: 0.77, lz: -0.30, fov: 33, drift: 0.05, parallax: 0.3, rise: 1 },
   },
   {
-    // Engine bay, framed on the powertrain once it has drawn forward.
+    // Engine bay, framed on the powertrain once it has drawn forward to
+    // z2.5-3.2. Far enough back that the raised hood reads as the frame
+    // around the block rather than as an object in the way.
     at: 0.68,
     ease: 'power2.inOut',
-    cam: { px: 2.1, py: 1.35, pz: 3.7, lx: 0, ly: 0.85, lz: 1.85, fov: 34, drift: 0.08, parallax: 0.4 },
+    cam: { px: 2.2, py: 1.80, pz: 5.0, lx: -0.20, ly: 1.28, lz: 2.95, fov: 32, drift: 0.08, parallax: 0.4, rise: 1 },
   },
   {
     // Around to the rear quarter for aerodynamics.
     at: 0.79,
     ease: 'power2.inOut',
-    cam: { px: -3.6, py: 1.15, pz: -4.2, lx: 0, ly: 0.85, lz: -1.5, fov: 32, drift: 0.15, parallax: 0.6 },
+    cam: { px: -3.6, py: 1.15, pz: -4.2, lx: 0, ly: 0.85, lz: -1.5, fov: 32, drift: 0.15, parallax: 0.6, rise: 1 },
   },
   {
-    // Line up on the centreline, ahead of the nose. Wider lens: the
-    // walls are about to pass very close to the sensor.
+    // Line up on the centreline, ahead of the nose, at the height the
+    // pass will hold. Wider lens: the walls are about to pass very
+    // close to the sensor.
     at: 0.855,
     ease: 'power1.inOut',
-    cam: { px: 0, py: 0.95, pz: 4.4, lx: 0, ly: 0.86, lz: 0, fov: 42, drift: 0, parallax: 0.2 },
+    cam: { px: 0, py: 1.35, pz: 4.4, lx: 0, ly: 0.95, lz: 0, fov: 42, drift: 0, parallax: 0.2, rise: 1 },
   },
   {
-    // Inside, between the seats, travelling aft.
-    // Raise py slightly and narrow fov to avoid the ceiling clipping into view.
+    // Through the cabin, travelling aft, entering over the dash rather
+    // than from between the seat backs — the corridor between the cage
+    // (tops out at 1.82) and the raised pillars (2.22) is only ~0.4 deep,
+    // and starting inside it fills the frame with upholstery.
     at: 0.9,
     ease: 'none',
-    cam: { px: 0, py: 0.86, pz: 0.7, lx: 0, ly: 0.72, lz: -2.2, fov: 42, drift: 0, parallax: 0.1 },
+    cam: { px: 0, py: 1.52, pz: 1.75, lx: 0, ly: 0.85, lz: -3.0, fov: 44, drift: 0, parallax: 0.1, rise: 1 },
   },
   {
     // Out through the tail, turning back as the car reassembles.
     at: 0.935,
     ease: 'power1.out',
-    cam: { px: 0.3, py: 0.98, pz: -4.3, lx: 0, ly: 0.75, lz: -1.0, fov: 38, drift: 0, parallax: 0.3 },
+    cam: { px: 0.3, py: 1.20, pz: -4.3, lx: 0, ly: 0.80, lz: -1.0, fov: 38, drift: 0, parallax: 0.3, rise: 1 },
   },
   {
     // Arc wide around the left flank — never across the car.
     at: 0.97,
     ease: 'power1.inOut',
-    cam: { px: 5.8, py: 1.3, pz: -1.4, lx: 0, ly: 0.68, lz: 0, fov: 34, drift: 0.4, parallax: 0.7 },
+    cam: { px: 5.8, py: 1.3, pz: -1.4, lx: 0, ly: 0.68, lz: 0, fov: 34, drift: 0.4, parallax: 0.7, rise: 1 },
   },
   {
     // Home. Whole again, and back on the hero axis.
     at: 1,
     ease: 'power2.out',
-    cam: { px: 4.6, py: 1.42, pz: 5.0, lx: 0, ly: 0.62, lz: 0.1, fov: 32, drift: 0.85, parallax: 1 },
+    cam: { px: 4.6, py: 1.42, pz: 5.0, lx: 0, ly: 0.62, lz: 0.1, fov: 32, drift: 0.85, parallax: 1, rise: 0 },
   },
 ];
 
@@ -114,14 +130,16 @@ export const BEATS = [
  * rather than outlining a part or dimming the rest of the scene, a small
  * champagne source is placed at the component under discussion.
  *
- * Positions account for where a part sits *after* it has exploded.
+ * Positions account for where a part sits *after* it has exploded, and
+ * carry the same `rise` as the camera beats — a light left on the floor
+ * while the assembly floats above it lights nothing.
  */
 export const FOCUS_BEATS = [
-  { at: 0.19, to: 0.29, pos: [0.95, 0.55, 1.25], intensity: 2.6 }, // front brake
-  { at: 0.44, to: 0.53, pos: [0, 0.5, 0], intensity: 1.6 }, // chassis, under the assembly
-  { at: 0.55, to: 0.64, pos: [0, 1.15, 0.3], intensity: 3.2 }, // cabin — higher for seat clarity
-  { at: 0.65, to: 0.74, pos: [0, 1.3, 2.9], intensity: 3.0 }, // powertrain, drawn forward
-  { at: 0.76, to: 0.85, pos: [0, 1.05, -2.6], intensity: 2.4 }, // rear clip, withdrawn
+  { at: 0.19, to: 0.29, pos: [0.95, 0.55, 1.25], intensity: 2.6, rise: 0 }, // front brake
+  { at: 0.44, to: 0.53, pos: [0, 0.5, 0], intensity: 1.6, rise: 1 }, // chassis, under the assembly
+  { at: 0.55, to: 0.64, pos: [0, 1.0, 0.1], intensity: 3.2, rise: 1 }, // cabin, between the seats
+  { at: 0.65, to: 0.74, pos: [0, 1.25, 2.85], intensity: 3.0, rise: 1 }, // powertrain, drawn forward
+  { at: 0.76, to: 0.85, pos: [0, 1.05, -2.6], intensity: 2.4, rise: 1 }, // rear clip, withdrawn
 ];
 
 /** Adds the camera beats to the master timeline. */
@@ -147,7 +165,7 @@ export function addFocusBeats(tl, focus) {
   for (const beat of FOCUS_BEATS) {
     const [x, y, z] = beat.pos;
     // Move while dark, so the light never streaks across the vehicle.
-    tl.set(focus, { x, y, z }, Math.max(beat.at - RAMP, 0));
+    tl.set(focus, { x, y, z, rise: beat.rise }, Math.max(beat.at - RAMP, 0));
     tl.to(focus, { intensity: beat.intensity, duration: RAMP, ease: 'power2.out' }, beat.at - RAMP);
     tl.to(focus, { intensity: 0, duration: RAMP, ease: 'power2.in' }, beat.to);
   }

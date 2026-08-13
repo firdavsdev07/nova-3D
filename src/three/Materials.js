@@ -38,8 +38,22 @@ const PALETTE = {
  * Build a MeshPhysicalMaterial that inherits the source material's maps
  * but none of its look. Any map slot can be suppressed with `drop`.
  */
+/* Physical-only features. A material asking for none of them gets the
+   standard shader, which is materially cheaper per fragment — and on a
+   car most surfaces (rubber, cast, leather, mats, housings) want nothing
+   the standard model does not already give them. */
+const PHYSICAL_PROPS = [
+  'clearcoat',
+  'clearcoatRoughness',
+  'transmission',
+  'iridescence',
+  'sheen',
+  'specularIntensity',
+];
+
 function derive(source, props = {}, drop = []) {
-  const mat = new THREE.MeshPhysicalMaterial();
+  const physical = PHYSICAL_PROPS.some((k) => props[k] !== undefined);
+  const mat = physical ? new THREE.MeshPhysicalMaterial() : new THREE.MeshStandardMaterial();
   mat.name = source.name;
 
   // Surface detail worth keeping — these encode geometry, not styling.
@@ -166,7 +180,6 @@ const OVERRIDES = {
       roughness: 0.035,
       transparent: true,
       opacity: 0.44,
-      transmission: 0,
       envMapIntensity: 2.4,
       side: THREE.DoubleSide,
       depthWrite: false,

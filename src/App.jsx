@@ -119,6 +119,15 @@ export default function App() {
 
         scroll.refresh();
 
+        // The soundtrack comes up on its own. Browsers will not allow it
+        // before the visitor has done something, so this starts it at the
+        // first opportunity rather than waiting to be asked.
+        audioRef.current?.armAutostart((on) => {
+          if (cancelled) return;
+          setSoundOn(on);
+          if (on) audioRef.current?.setDisassembly(experience.state.disassembly);
+        });
+
         if (import.meta.env.DEV) {
           // Visual QA hook. Lets a headless browser jump the film to an
           // exact progress without waiting out the scrub and the camera
@@ -127,12 +136,13 @@ export default function App() {
             experience,
             scroll,
             seek(p) {
+              if (!experience.vehicle) return;
               const max = document.documentElement.scrollHeight - window.innerHeight;
               window.scrollTo(0, max * p);
               scroll.timeline.scrollTrigger.update();
               scroll.timeline.progress(p);
               experience.vehicle.update(experience.state);
-              experience.rig.jumpToTarget();
+              experience.rig.jumpToTarget(experience.liftHeight);
             },
           };
         }

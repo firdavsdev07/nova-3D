@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#08090a" />
-  <path
-    d="M9 23V9l14 14V9"
-    fill="none"
-    stroke="#ede9e3"
-    stroke-width="2.1"
-    stroke-linecap="square"
-    stroke-linejoin="miter"
-  />
+  <!-- NOVA monogram. The two stems carry the wordmark's bone; the
+       diagonal takes the champagne accent, which is the only thing that
+       still reads as brand rather than as a letter at 16px. -->
+  <rect width="32" height="32" rx="4" fill="#08090a" />
+  <g stroke-width="2.8" stroke-linecap="square" fill="none">
+    <path d="M9.6 24.5V7.5" stroke="#ede9e3" />
+    <path d="M22.4 24.5V7.5" stroke="#ede9e3" />
+    <path d="M9.6 7.5 22.4 24.5" stroke="#bc9a6a" />
+  </g>
 </svg>

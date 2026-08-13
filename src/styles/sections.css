@@ -25,6 +25,59 @@
   pointer-events: auto;
 }
 
+/* ------------------------------------------------------------- scrim
+
+   Copy sits directly on the render, and the render is not a controlled
+   background — a panel travels over black voids and over the lit flank
+   of the car within the same beat. A text-shadow alone loses the small
+   labels against paint highlights.
+
+   So each panel lays a single directional gradient under its own copy,
+   anchored to whichever edge that copy occupies. It reads as the light
+   falling off toward frame edge rather than as a card, and because it
+   belongs to the panel it fades in and out on the same tween.          */
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.panel--hero::before,
+.panel--left::before,
+.panel--foot::before,
+.panel--stats::before {
+  background: linear-gradient(
+    100deg,
+    rgb(8 9 10 / 88%) 0%,
+    rgb(8 9 10 / 74%) 22%,
+    rgb(8 9 10 / 30%) 46%,
+    transparent 66%
+  );
+}
+
+.panel--right::before {
+  background: linear-gradient(
+    260deg,
+    rgb(8 9 10 / 88%) 0%,
+    rgb(8 9 10 / 74%) 22%,
+    rgb(8 9 10 / 30%) 46%,
+    transparent 66%
+  );
+}
+
+/* The figures run along the base, so this one grades upward instead. */
+.panel--stats::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(8 9 10 / 82%) 0%, transparent 38%);
+}
+
 .panel__block {
   display: grid;
   gap: clamp(1rem, 2vw, 1.5rem);
@@ -434,10 +487,32 @@
   }
 
   /* Copy sits at the base on small screens so the vehicle keeps the
-     upper two-thirds of the frame to itself. */
+     upper two-thirds of the frame to itself. The camera rig makes the
+     same assumption — see `_highShot` in Camera.js. */
+  .panel--hero,
   .panel--left,
   .panel--right {
     align-content: end;
+  }
+
+  /* The copy moved to the base, so the scrim has to follow it — a
+     side gradient here would darken the vehicle and not the type. */
+  .panel--hero::before,
+  .panel--left::before,
+  .panel--right::before,
+  .panel--foot::before,
+  .panel--stats::before {
+    background: linear-gradient(
+      to top,
+      rgb(8 9 10 / 90%) 0%,
+      rgb(8 9 10 / 72%) 30%,
+      rgb(8 9 10 / 24%) 58%,
+      transparent 78%
+    );
+  }
+
+  .panel--stats::after {
+    background: none;
   }
 
   .stats {
@@ -456,6 +531,13 @@
 
   .annotation__row dt {
     display: none; /* keep the figure, drop the caption */
+  }
+
+  /* The cue sits centred at the base, where the telemetry and the rail
+     already are on a narrow screen. The rail reads as a progress track
+     on its own, so the cue is the one that goes. */
+  .cue {
+    display: none;
   }
 }
 

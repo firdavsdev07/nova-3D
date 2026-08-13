@@ -124,7 +124,12 @@ export class Vehicle {
       // Transparent casters would drop an opaque shadow through the cabin.
       node.castShadow = !isGlass;
       node.receiveShadow = true;
-      node.frustumCulled = false; // parts leave the body's bounds when exploded
+      // Culling stays on through the explode: three tests each mesh
+      // against its own bounding sphere transformed by its own
+      // matrixWorld, so a part that flies out carries its bounds with
+      // it. Turning it off costs all 97 meshes on every close beat,
+      // where most of the car is far outside the frame.
+      node.frustumCulled = true;
     });
 
     /* ---- centre on the floor ------------------------------------- */
@@ -200,6 +205,7 @@ export class Vehicle {
    */
   update(state) {
     const amounts = state.explode;
+    let moved = false;
 
     for (const part of this.parts) {
       const rule = EXPLODE[part.group];
@@ -210,6 +216,7 @@ export class Vehicle {
       const last = this._applied.get(part);
       if (last === amount) continue;
       this._applied.set(part, amount);
+      moved = true;
 
       part.obj.position.set(
         part.home.x + rule.out * part.side * amount,
@@ -233,7 +240,15 @@ export class Vehicle {
 
     // The assembly rises off the floor as it comes apart, which gives
     // the sills somewhere to drop to.
-    this.container.position.y = this.baseY + state.lift * this.explodeScale;
+    const y = this.baseY + state.lift * this.explodeScale;
+    if (y !== this.container.position.y) {
+      this.container.position.y = y;
+      moved = true;
+    }
+
+    // Reported so the caller can skip work that only geometry motion
+    // invalidates — the shadow map, above all.
+    return moved;
   }
 
   dispose() {

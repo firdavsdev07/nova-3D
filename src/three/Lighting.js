@@ -220,6 +220,18 @@ export function setupLighting(scene, renderer, { quality }) {
       focus.intensity = intensity;
     },
 
+    /**
+     * Follows a quality-tier change. Disposing the old map forces three
+     * to allocate at the new size on the next shadow pass — without it
+     * the resolution field is ignored for the life of the light.
+     */
+    setShadowResolution(size) {
+      if (key.shadow.mapSize.width === size) return;
+      key.shadow.mapSize.set(size, size);
+      key.shadow.map?.dispose();
+      key.shadow.map = null;
+    },
+
     dispose() {
       scene.environment = null;
       scene.fog = null;

@@ -47,9 +47,13 @@ export const EXPLODE = {
   // Clamshell hood: forward and up, tipped on its front hinge.
   hood: { out: 0, up: 0.88, fwd: 0.64, rot: [-0.10, 0, 0] },
 
-  roof: { out: 0, up: 1.12, fwd: -0.04 },
-  glass: { out: 0, up: 1.34, fwd: 0.30 },
-  pillars: { out: 0, up: 0.84, fwd: 0 },
+  // The roof stack has to clear the cabin, not just leave it: the A-pillar
+  // rails run down to the sill, so at anything under ~1.15 they are still
+  // standing between the seats when the interior beat looks in. Ordered
+  // pillars → glass → roof so the three never interpenetrate mid-air.
+  pillars: { out: 0, up: 1.40, fwd: 0 },
+  glass: { out: 0, up: 1.86, fwd: 0.30 },
+  roof: { out: 0, up: 1.62, fwd: -0.04 },
 
   // The rear clip withdraws along the axis it was fitted on.
   rear: { out: 0, up: 0.28, fwd: -1.18 },
@@ -134,7 +138,9 @@ export const ANNOTATIONS = [
   },
   {
     id: 'cabin',
-    range: [0.55, 0.64],
+    // Handed off to `seats` rather than overlapping it: two labels over
+    // one cockpit collide on screen and read as clutter.
+    range: [0.545, 0.593],
     anchor: 'InteriorSteeringCylinder',
     offset: [0, 0.22, 0.1],
     label: 'Cabin',
@@ -145,7 +151,7 @@ export const ANNOTATIONS = [
   },
   {
     id: 'seats',
-    range: [0.565, 0.64],
+    range: [0.601, 0.645],
     anchor: 'InteriorSeatsColor1',
     offset: [0.22, 0.18, 0],
     label: 'Occupant cell',

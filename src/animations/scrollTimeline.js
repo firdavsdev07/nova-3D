@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { addCameraBeats, addFocusBeats } from './cameraAnimations.js';
-import { addCounters } from './uiAnimations.js';
+import { addCounters, reducedMotion } from './uiAnimations.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -69,7 +69,11 @@ export function buildScrollTimeline({ state, driver, panels, onProgress }) {
       end: 'bottom bottom',
       // Scrub adds the weight. Without it the camera tracks the wheel
       // one-to-one and the whole thing feels like a scrubbing a video.
-      scrub: 1.15,
+      //
+      // Under reduced motion it becomes exactly that: `true` locks the
+      // timeline to the scrollbar, so nothing continues moving after the
+      // visitor has stopped.
+      scrub: reducedMotion() ? true : 1.15,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
         state.progress = self.progress;
